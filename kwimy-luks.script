@@ -1,0 +1,172 @@
+# Base: #1A1B24
+Window.SetBackgroundTopColor(0.102, 0.106, 0.141);
+Window.SetBackgroundBottomColor(0.102, 0.106, 0.141);
+
+screen_width = Window.GetWidth();
+screen_height = Window.GetHeight();
+
+logo.image = Image("logo-luks.png");
+logo.sprite = Sprite(logo.image);
+
+entry.image = Image("entry.png");
+entry.sprite = Sprite(entry.image);
+entry.sprite.SetOpacity(0);
+
+lock.image = Image("lock.png");
+lock.sprite = Sprite(lock.image);
+lock.sprite.SetOpacity(0);
+
+bullet.image = Image("bullet.png");
+bullet.sprites = [];
+
+spinner.frames = [];
+spinner.frames[0] = Image("throbber-0001.png");
+spinner.frames[1] = Image("throbber-0002.png");
+spinner.frames[2] = Image("throbber-0003.png");
+spinner.frames[3] = Image("throbber-0004.png");
+spinner.frames[4] = Image("throbber-0005.png");
+spinner.frames[5] = Image("throbber-0006.png");
+spinner.frames[6] = Image("throbber-0007.png");
+spinner.frames[7] = Image("throbber-0008.png");
+spinner.frames[8] = Image("throbber-0009.png");
+spinner.frames[9] = Image("throbber-0010.png");
+spinner.frames[10] = Image("throbber-0011.png");
+spinner.frames[11] = Image("throbber-0012.png");
+spinner.frames[12] = Image("throbber-0013.png");
+spinner.frames[13] = Image("throbber-0014.png");
+spinner.frames[14] = Image("throbber-0015.png");
+spinner.frames[15] = Image("throbber-0016.png");
+spinner.frames[16] = Image("throbber-0017.png");
+spinner.frames[17] = Image("throbber-0018.png");
+spinner.frames[18] = Image("throbber-0019.png");
+spinner.frames[19] = Image("throbber-0020.png");
+spinner.frames[20] = Image("throbber-0021.png");
+spinner.frames[21] = Image("throbber-0022.png");
+spinner.frames[22] = Image("throbber-0023.png");
+spinner.frames[23] = Image("throbber-0024.png");
+spinner.frames[24] = Image("throbber-0025.png");
+spinner.frames[25] = Image("throbber-0026.png");
+spinner.frames[26] = Image("throbber-0027.png");
+spinner.frames[27] = Image("throbber-0028.png");
+spinner.frames[28] = Image("throbber-0029.png");
+spinner.frames[29] = Image("throbber-0030.png");
+spinner.sprite = Sprite(spinner.frames[0]);
+spinner.sprite.SetOpacity(0);
+
+global.animation_frame = 0;
+global.spinner_frame = 0;
+global.spinner_visible = 0;
+
+prompt.sprite = Sprite();
+prompt.sprite.SetOpacity(0);
+
+group_height = logo.image.GetHeight() + 36 + entry.image.GetHeight() + 28 + 18;
+group_top = (screen_height - group_height) / 2;
+
+logo_x = (screen_width - logo.image.GetWidth()) / 2;
+logo_y = group_top;
+logo.sprite.SetPosition(logo_x, logo_y, 0);
+
+entry_x = (screen_width - entry.image.GetWidth()) / 2;
+entry_y = logo_y + logo.image.GetHeight() + 36;
+entry.sprite.SetPosition(entry_x, entry_y, 10001);
+
+lock_x = entry_x - lock.image.GetWidth() - 14;
+lock_y = entry_y + (entry.image.GetHeight() - lock.image.GetHeight()) / 2;
+lock.sprite.SetPosition(lock_x, lock_y, 10002);
+
+spinner_x = (screen_width - spinner.frames[0].GetWidth()) / 2;
+spinner_y = entry_y + (entry.image.GetHeight() / 2) - (spinner.frames[0].GetHeight() / 2);
+spinner.sprite.SetPosition(spinner_x, spinner_y, 10001);
+
+fun set_prompt_text(text)
+{
+  local_text = text;
+  if (local_text == "")
+    local_text = "Enter encryption passphrase";
+  prompt.image = Image.Text(local_text, 0.83, 0.86, 0.92);
+  prompt.sprite.SetImage(prompt.image);
+  prompt_x = (screen_width - prompt.image.GetWidth()) / 2;
+  prompt_y = entry_y + entry.image.GetHeight() + 18;
+  prompt.sprite.SetPosition(prompt_x, prompt_y, 10003);
+}
+
+fun show_password_dialog()
+{
+  entry.sprite.SetOpacity(1);
+  lock.sprite.SetOpacity(1);
+  prompt.sprite.SetOpacity(1);
+}
+
+fun show_spinner()
+{
+  global.spinner_visible = 1;
+  spinner.sprite.SetOpacity(1);
+}
+
+fun hide_password_dialog()
+{
+  entry.sprite.SetOpacity(0);
+  lock.sprite.SetOpacity(0);
+  prompt.sprite.SetOpacity(0);
+  for (index = 0; bullet.sprites[index]; index++)
+    bullet.sprites[index].SetOpacity(0);
+}
+
+fun hide_spinner()
+{
+  global.spinner_visible = 0;
+  spinner.sprite.SetOpacity(0);
+}
+
+fun refresh_callback ()
+{
+  global.animation_frame++;
+  if (global.spinner_visible == 1 && (global.animation_frame % 3) == 0)
+    {
+      global.spinner_frame = global.spinner_frame + 1;
+      if (global.spinner_frame > 29)
+        global.spinner_frame = 0;
+      spinner.sprite.SetImage(spinner.frames[global.spinner_frame]);
+    }
+}
+
+Plymouth.SetRefreshFunction (refresh_callback);
+
+fun display_normal_callback ()
+{
+  hide_password_dialog();
+  show_spinner();
+}
+
+fun display_password_callback (prompt, bullets)
+{
+  hide_spinner();
+  show_password_dialog();
+  set_prompt_text(prompt);
+
+  for (index = 0; bullet.sprites[index]; index++)
+    bullet.sprites[index].SetOpacity(0);
+
+  bullet_spacing = bullet.image.GetWidth() + 6;
+  bullet_padding = 18;
+  max_bullets = Math.Int((entry.image.GetWidth() - (bullet_padding * 2)) / bullet_spacing);
+  bullets_to_show = bullets;
+  if (bullets_to_show > max_bullets)
+    bullets_to_show = max_bullets;
+
+  for (index = 0; index < bullets_to_show; index++)
+    {
+      if (!bullet.sprites[index])
+        {
+          bullet.sprites[index] = Sprite(bullet.image);
+          bullet_x = entry_x + bullet_padding + (index * bullet_spacing);
+          bullet_y = entry_y + (entry.image.GetHeight() / 2) - (bullet.image.GetHeight() / 2);
+          bullet.sprites[index].SetPosition(bullet_x, bullet_y, 10004);
+        }
+      bullet.sprites[index].SetOpacity(1);
+    }
+}
+
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+Plymouth.SetDisplayPasswordFunction(display_password_callback);

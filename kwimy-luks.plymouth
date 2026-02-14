@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Kwimy LUKS
+Description=Kwimy LUKS passphrase prompt
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/kwimy-luks
+ScriptFile=/usr/share/plymouth/themes/kwimy-luks/kwimy-luks.script

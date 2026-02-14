@@ -1,0 +1,9 @@
+pkgbase = kwimy-luks
+	pkgdesc = Kwimy Plymouth LUKS theme
+	pkgver = 0.0.1
+	pkgrel = 1
+	url = https://github.com/KwimyOS
+	arch = any
+	license = custom
+
+pkgname = kwimy-luks
